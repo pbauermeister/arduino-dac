@@ -23,6 +23,8 @@ F1 Arduino: Library Manager > Adafruit MCP4728 by Adafruit
 Adafruit_MCP4728 mcp;
 
 bool initMcp() {
+  Wire.setClock(1000000);
+
   if (!mcp.begin()) {
     Serial.println("Failed to find MCP4728 chip");
     return false;
@@ -39,28 +41,47 @@ void setup(void) {
 
 const int SPAN = 4096;
 
-int dt = 2;
-
 float ky = 2.1;
-float dy = 0;  // PI / 2.;
 
 int t = 0;
+int dt = 1;
 
-void loop() {
+int i = 0;
+
+void fast_square() {
+  mcp.setChannelValue(MCP4728_CHANNEL_A, 0);
+  mcp.setChannelValue(MCP4728_CHANNEL_B, 0);
+
+  mcp.setChannelValue(MCP4728_CHANNEL_A, 4095);
+  mcp.setChannelValue(MCP4728_CHANNEL_B, 4095);
+}
+
+void lissajous() {
   float tx = (float)t / 360. * 2. * PI;
 
   float xf = (sin(tx) / 2. + 0.5) * (SPAN - 1);
   int x = (int)xf;
 
-  float ty = tx * ky + dy;
+  ky = 1.5 + sin(tx / 100);
+
+  float ty = tx * ky;
   float yf = (sin(ty) / 2. + 0.5) * (SPAN - 1);
   int y = (int)yf;
 
-  //  mcp.setChannelValue(MCP4728_CHANNEL_A, x);
-  //  mcp.setChannelValue(MCP4728_CHANNEL_B, y);
-  mcp.fastWrite(x, y, 0, 0);
+  mcp.setChannelValue(MCP4728_CHANNEL_A, x);
+  mcp.setChannelValue(MCP4728_CHANNEL_B, y);
+}
+
+void loop() {
+  // fast_square();
+  lissajous();
 
   t += dt;
-  if ((t % 360) == 0) digitalWrite(LED_BUILTIN, HIGH);
-  if ((t % 360) == 180) digitalWrite(LED_BUILTIN, LOW);
+
+  i++;
+
+  return;
+  const int PERIOD = 20;
+  if ((i % PERIOD) == 0) digitalWrite(LED_BUILTIN, HIGH);
+  if ((i % PERIOD) == PERIOD / 2) digitalWrite(LED_BUILTIN, LOW);
 }
