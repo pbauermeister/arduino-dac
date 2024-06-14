@@ -18,6 +18,7 @@ F1 Arduino: Library Manager > Adafruit MCP4728 by Adafruit
 
 #include <Adafruit_MCP4728.h>
 #include <Wire.h>
+#include <math.h>
 
 Adafruit_MCP4728 mcp;
 
@@ -37,23 +38,29 @@ void setup(void) {
 }
 
 const int SPAN = 4096;
-const int K = 2;
 
-int x = 0;
-int dx = 32 * K;
+int dt = 2;
 
-int y = SPAN / 2;
-int dy = 32 * K;
+float ky = 2.1;
+float dy = 0;  // PI / 2.;
+
+int t = 0;
 
 void loop() {
-  mcp.setChannelValue(MCP4728_CHANNEL_A, x);
-  x += dx;
-  x = x % SPAN;
+  float tx = (float)t / 360. * 2. * PI;
 
-  mcp.setChannelValue(MCP4728_CHANNEL_B, y);
-  y += dy;
-  y = y % SPAN;
+  float xf = (sin(tx) / 2. + 0.5) * (SPAN - 1);
+  int x = (int)xf;
 
-  if (x == 0) digitalWrite(LED_BUILTIN, HIGH);
-  if (x == 1024) digitalWrite(LED_BUILTIN, LOW);
+  float ty = tx * ky + dy;
+  float yf = (sin(ty) / 2. + 0.5) * (SPAN - 1);
+  int y = (int)yf;
+
+  //  mcp.setChannelValue(MCP4728_CHANNEL_A, x);
+  //  mcp.setChannelValue(MCP4728_CHANNEL_B, y);
+  mcp.fastWrite(x, y, 0, 0);
+
+  t += dt;
+  if ((t % 360) == 0) digitalWrite(LED_BUILTIN, HIGH);
+  if ((t % 360) == 180) digitalWrite(LED_BUILTIN, LOW);
 }
