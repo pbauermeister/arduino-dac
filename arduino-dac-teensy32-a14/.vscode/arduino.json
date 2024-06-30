@@ -1,0 +1,6 @@
+{
+    "port": "/dev/ttyACM0",
+    "board": "teensy:avr:teensy31",
+    "sketch": "arduino-dac-teensy32-a14.ino",
+    "configuration": "usb=serial,speed=96,opt=o2std,keys=en-us"
+}
