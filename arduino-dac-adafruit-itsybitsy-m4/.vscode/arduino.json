@@ -1,0 +1,6 @@
+{
+    "port": "/dev/ttyACM0",
+    "board": "adafruit:samd:adafruit_itsybitsy_m4",
+    "sketch": "arduino-dac-adafruit-itsybitsy-m4.ino",
+    "configuration": "cache=on,speed=120,opt=small,maxqspi=50,usbstack=arduino,debug=off"
+}
